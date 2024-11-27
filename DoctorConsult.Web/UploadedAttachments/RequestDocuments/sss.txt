@@ -1,0 +1,4 @@
+-- Insert all combinations of HospitalId and DepartmentId
+INSERT INTO HospitalDepartments (HospitalId, DepartmentId)
+SELECT Hospitals.Id, Departments.Id
+FROM Hospitals, Departments;

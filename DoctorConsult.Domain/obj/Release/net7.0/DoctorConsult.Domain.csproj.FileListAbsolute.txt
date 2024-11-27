@@ -1,0 +1,17 @@
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\bin\Release\net7.0\DoctorConsult.Domain.deps.json
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\bin\Release\net7.0\DoctorConsult.Domain.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\bin\Release\net7.0\DoctorConsult.Domain.pdb
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\bin\Release\net7.0\DoctorConsult.Models.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\bin\Release\net7.0\DoctorConsult.ViewModels.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\bin\Release\net7.0\DoctorConsult.Models.pdb
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\bin\Release\net7.0\DoctorConsult.ViewModels.pdb
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\DoctorConsult.Domain.csproj.AssemblyReference.cache
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\DoctorConsult.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\DoctorConsult.Domain.AssemblyInfoInputs.cache
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\DoctorConsult.Domain.AssemblyInfo.cs
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\DoctorConsult.Domain.csproj.CoreCompileInputs.cache
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\DoctorConsult.Domain.csproj.CopyComplete
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\DoctorConsult.Domain.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\refint\DoctorConsult.Domain.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\DoctorConsult.Domain.pdb
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.Domain\obj\Release\net7.0\ref\DoctorConsult.Domain.dll

@@ -1,0 +1,15 @@
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\bin\Release\net7.0\DoctorConsult.ViewModels.deps.json
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\bin\Release\net7.0\DoctorConsult.ViewModels.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\bin\Release\net7.0\DoctorConsult.ViewModels.pdb
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\bin\Release\net7.0\DoctorConsult.Models.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\bin\Release\net7.0\DoctorConsult.Models.pdb
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\DoctorConsult.ViewModels.csproj.AssemblyReference.cache
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\DoctorConsult.ViewModels.GeneratedMSBuildEditorConfig.editorconfig
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\DoctorConsult.ViewModels.AssemblyInfoInputs.cache
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\DoctorConsult.ViewModels.AssemblyInfo.cs
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\DoctorConsult.ViewModels.csproj.CoreCompileInputs.cache
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\DoctorConsult.ViewModels.csproj.CopyComplete
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\DoctorConsult.ViewModels.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\refint\DoctorConsult.ViewModels.dll
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\DoctorConsult.ViewModels.pdb
+C:\Ekram\Projects\DoctorConsult\Doctor Consultant\DoctorConsultAPI\DoctorConsult.ViewModels\obj\Release\net7.0\ref\DoctorConsult.ViewModels.dll
