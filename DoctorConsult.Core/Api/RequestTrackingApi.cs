@@ -67,8 +67,10 @@ namespace  DoctorConsult.Core.Repositories
         public IndexRequestTrackingVM GetAllTrackingsByRequestId(int RequestId)
         {
             IndexRequestTrackingVM mainClass = new IndexRequestTrackingVM();
-                        var trackings = _context.RequestTrackings.Include(a => a.Request).Include(a => a.Request.User).Include(a => a.RequestStatus)
-                   .Where(r => r.RequestId == RequestId).Select(track => new IndexRequestTrackingVM.GetData
+                     
+            
+            var trackings = _context.RequestTrackings.Include(a => a.Request).Include(a => a.Request.User).Include(a => a.RequestStatus)
+                   .Where(r => r.RequestId == RequestId).OrderByDescending(t => t.ResponseDate).Select(track => new IndexRequestTrackingVM.GetData
                    {
                        Id = track.Id,
 
@@ -76,13 +78,12 @@ namespace  DoctorConsult.Core.Repositories
                        ResponseDate = track.ResponseDate,
                        CreatedByName = track.Request.User != null? track.User.UserName:"",
                        AssignedToUser = track.Request.User != null ? track.AssignToUser.UserName:"",
-                       //ManagerDoctorName = track.Doctor.NameAr,
                        StatusId = track.StatusId != null ? (int)track.StatusId : 0,
                        StatusName = track.RequestStatus != null ? track.RequestStatus.Name : "",
                        StatusNameAr = track.RequestStatus != null ? track.RequestStatus.NameAr : "",
                        StatusColor = track.RequestStatus != null ? track.RequestStatus.Color : "",
                        StatusIcon = track.RequestStatus != null ? track.RequestStatus.Icon : "",
-                   }).OrderByDescending(t => t.ResponseDate).ToList();
+                   }).ToList();
 
 
             mainClass.Results = trackings;

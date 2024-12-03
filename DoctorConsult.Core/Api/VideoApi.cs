@@ -25,11 +25,10 @@ namespace videoConsult.Core.Repositories
             {
                 if (model != null)
                 {
-                    // Validate the VideoURL format
-                    if ((!string.IsNullOrEmpty(model.VideoURL)) && (!model.VideoURL.Contains("embed") || !model.VideoURL.Contains("shorts") 
-                        || !model.VideoURL.Contains("watch") || !model.VideoURL.StartsWith("https://youtu.be")))
+                    var invalid = IsValidYouTubeUrl(model.VideoURL);
+                    if (invalid == false)
                     {
-                        return 0; // You can customize this behavior with a more specific error code or message
+                        return 0;
                     }
                     else
                     {
@@ -293,7 +292,8 @@ namespace videoConsult.Core.Repositories
             //    string pattern = @"(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^""&?\/\s]+)";
 
 
-            string pattern = @"(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^""&?\/\s?]+)";
+            // string pattern = @"(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^""&?\/\s?]+)";
+            string pattern = @"(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^""&?\/\s?]+)";
 
             Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
             Match match = regex.Match(url);
@@ -302,6 +302,19 @@ namespace videoConsult.Core.Repositories
             return match.Success ? match.Groups[1].Value : null;
         }
 
+        public static bool IsValidYouTubeUrl(string url)
+        {
+            // Regex to match both full and shortened YouTube URLs with video ID
+      //      string pattern = @"^(https?://(?:www\.)?youtube\.com/(?:watch\?v=|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[?&][^#]*)?$";
+
+            string pattern = @"^(https?://)?(www\.)?(youtube\.com/(watch\?v=|v/|embed/|e/|shorts/)|youtu\.be/)([a-zA-Z0-9_-]{11})(\S*)?$";
+
+            // Match the URL against the pattern
+            var match = Regex.Match(url, pattern);
+
+            // Return true if the URL matches the pattern
+            return match.Success;
+        }
         public EditVideoVM GetById(int id)
         {
             return _context.Videos.Include(a => a.Specialist).Where(a => a.Id == id).Select(item => new EditVideoVM

@@ -129,11 +129,11 @@ namespace DoctorConsult.Core.Repositories
             var query = _context.RequestTrackings.Include(a => a.Request)
                                  .Include(a => a.Request.User)
                                  .OrderByDescending(a => a.ResponseDate)
-                                   //.Where(a => !string.IsNullOrEmpty(a.AssignTo))
+                                 //.Where(a => !string.IsNullOrEmpty(a.AssignTo))
                                  .ToList().GroupBy(rt => rt.RequestId).AsQueryable();
 
 
-           
+
             if (lstRoleNames.Contains("Doctor"))
             {
                 query = query.Where(a => a.FirstOrDefault().AssignTo == userId).Where(a => !string.IsNullOrEmpty(a.FirstOrDefault().AssignTo));
@@ -218,36 +218,10 @@ namespace DoctorConsult.Core.Repositories
             var lstStatus = _context.RequestStatus.ToList();
             mainClass.ListStatus = lstStatus;
 
-            //var query = _context.RequestTrackings.Include(a => a.Request)
-            //                     .Include(a => a.Request.User)
-            //                     .OrderByDescending(a => a.ResponseDate)
-            //                   //    .Where(a => !string.IsNullOrEmpty(a.AssignTo))
-            //                     .ToList().GroupBy(rt => rt.RequestId).AsQueryable();
 
-
-
-
-            var query = _context.RequestTrackings
-                                        .Include(a => a.Request)
-                                        .ThenInclude(r => r.User) // Ensure User is included if AssignTo is a foreign key
-                                        .Include(a => a.Request)
-                                        .ThenInclude(r => r.Specialist)
-                                        .Include(a => a.RequestStatus)
-                                        .Include(a => a.User) // Include User if necessary
-                                      //  .Where(a => !string.IsNullOrEmpty(a.AssignTo))// Ensure AssignTo is not null or empty
-                                        .OrderByDescending(a => a.ResponseDate)
-                                        .ToList() 
-                                        .GroupBy(track => track.RequestId).AsQueryable();
-
-
-
-
-
-
-
-
-
-
+           var query = _context.RequestTrackings.Include(a => a.Request).Include(a => a.RequestStatus).Include(a => a.User).ToList()
+                                   .GroupBy(track => track.RequestId).ToList()
+                                   .Select(g => g.OrderByDescending(track => track.ResponseDate));
 
             if (lstRoleNames.Contains("Doctor"))
             {

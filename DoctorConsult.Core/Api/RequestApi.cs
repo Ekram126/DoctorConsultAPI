@@ -34,20 +34,25 @@ namespace DoctorConsult.Core.Repositories
         /// <returns></returns>
         private IQueryable<RequestTracking?>? GetAllRequests()
         {
+            //var lastStatusPerRequest = _context.RequestTrackings
+            //                            .Include(a => a.Request)
+            //                            .Include(r => r.Request.Specialist)
+            //                            .Include(a => a.RequestStatus)
+            //                            .Include(a => a.User)
+            //                            .ToList()
+            //                            .GroupBy(track => track.RequestId)
+            //                            .Select(g => g.OrderByDescending(track => track.Request.RequestDate).FirstOrDefault());
 
 
             var lastStatusPerRequest = _context.RequestTrackings
-                                        .Include(a => a.Request)
-                                        .ThenInclude(r => r.User) // Ensure User is included if AssignTo is a foreign key
-                                        .Include(a => a.Request)
-                                        .ThenInclude(r => r.Specialist)
-                                        .Include(a => a.RequestStatus)
-                                        .Include(a => a.User) // Include User if necessary
-                                        // .Where(a => !string.IsNullOrEmpty(a.AssignTo)) // Ensure AssignTo is not null or empty
-                                         .ToList()
-                                        .GroupBy(track => track.RequestId)
-                                        .Select(g => g.OrderByDescending(track => track.ResponseDate).FirstOrDefault());
-                                       // .OrderByDescending(a => a.ResponseDate.HasValue ? a.ResponseDate.Value.Date : DateTime.MinValue);
+                                 .Include(a => a.Request)
+                                 .Include(r => r.Request.Specialist)
+                                 .Include(a => a.RequestStatus)
+                                 .Include(a => a.User)
+                                 .ToList()
+                                 .GroupBy(track => track.RequestId)
+                                 .Select(g => g.OrderByDescending(track => track.ResponseDate).FirstOrDefault());
+
 
             return lastStatusPerRequest.AsQueryable();
         }
@@ -111,7 +116,7 @@ namespace DoctorConsult.Core.Repositories
             }
 
 
-        
+
             #endregion
 
             #region Search Criteria
@@ -261,11 +266,16 @@ namespace DoctorConsult.Core.Repositories
                 getDataObj.RequestCode = req.Request != null ? req.Request.RequestCode : "";
                 getDataObj.Subject = req.Request.Subject;
                 getDataObj.RequestDate = req.Request.RequestDate;
-                getDataObj.StatusId = req.RequestStatus != null ? (int)req.RequestStatus.Id : 0;
-                getDataObj.StatusName = req.RequestStatus != null ? req.RequestStatus.Name : "";
-                getDataObj.StatusNameAr = req.RequestStatus != null ? req.RequestStatus.NameAr : "";
-                getDataObj.StatusColor = req.RequestStatus != null ? req.RequestStatus.Color : "";
-                getDataObj.StatusIcon = req.RequestStatus != null ? req.RequestStatus.Icon : "";
+                var lstTracks = _context.RequestTrackings.Include(a => a.RequestStatus).Where(a => a.RequestId == req.Request.Id).OrderByDescending(a => a.ResponseDate).ToList();
+                if (lstTracks.Count > 0)
+                {
+                    var trackObj = lstTracks[0];
+                    getDataObj.StatusId = trackObj.RequestStatus != null ? (int)trackObj.RequestStatus.Id : 0;
+                    getDataObj.StatusName = trackObj.RequestStatus != null ? trackObj.RequestStatus.Name : "";
+                    getDataObj.StatusNameAr = trackObj.RequestStatus != null ? trackObj.RequestStatus.NameAr : "";
+                    getDataObj.StatusColor = trackObj.RequestStatus != null ? trackObj.RequestStatus.Color : "";
+                    getDataObj.StatusIcon = trackObj.RequestStatus != null ? trackObj.RequestStatus.Icon : "";
+                }
                 getDataObj.Advice = req.Advice;
                 getDataObj.CreatedBy = req.Request.User != null ? req.Request.User.UserName : "";
                 getDataObj.Complain = req.Request.Complain;
@@ -337,7 +347,7 @@ namespace DoctorConsult.Core.Repositories
         /// Updates the specified edit request model.
         /// </summary>
         /// <param name="editRequestVM">The edit request model.</param>
-       public void Update(EditRequestVM editRequestVM)
+        public void Update(EditRequestVM editRequestVM)
         {
 
             try
@@ -402,9 +412,10 @@ namespace DoctorConsult.Core.Repositories
                 requestDTO.RequestCode = req.RequestCode;
                 requestDTO.RequestDate = req.RequestDate;
                 requestDTO.UserName = req.User?.UserName;
+                requestDTO.UserId = req.User?.Id;
                 requestDTO.Complain = req.Complain;
                 requestDTO.SpecialityName = req.Specialist != null ? req.Specialist.Name : "";
-                requestDTO.SpecialityNameAr = req.Specialist.NameAr;
+                requestDTO.SpecialityNameAr = req.Specialist != null ? req.Specialist.NameAr:"";
                 requestDTO.SpecialityId = int.Parse(req.SpecialityId.ToString());
 
 
