@@ -81,7 +81,18 @@ namespace DoctorConsult.API.Controllers
         {
             try
             {
-                int updatedRow = _articleRepository.Update(ArticleVM);
+
+                int id = ArticleVM.Id;
+                var lstarticles = _articleRepository.GetAll().ToList().Where(a => a.OrderId == ArticleVM.OrderId && a.Id != id).ToList();
+                if (lstarticles.Count > 0)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "art", Message = "This order already exist!", MessageAr = "هذا الترتيب مسجل مسبقاً" });
+                }
+                else
+                {
+
+                    int updatedRow = _articleRepository.Update(ArticleVM);
+                }
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -97,6 +108,11 @@ namespace DoctorConsult.API.Controllers
         [Route("AddArticle")]
         public IActionResult Add(CreateArticleVM ArticleVM)
         {
+            var existCode = _articleRepository.GetAll().Where(a => a.OrderId == ArticleVM.OrderId).ToList();
+            if (existCode.Count > 0)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "special", Message = "This order already exist!", MessageAr = "هذا الترتيب مسجل مسبقاً" });
+
+
             var savedId = _articleRepository.Add(ArticleVM);
             return Ok(savedId);
         }
@@ -124,14 +140,9 @@ namespace DoctorConsult.API.Controllers
         {
             try
             {
-                //var imgExist = _articleRepository.GetAll().Where(a => a.ArticleImg == modelObj.ArticleImg).ToList();
-                //if (imgExist.Count > 0)
-                //    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "img", Message = "Image already exists!", MessageAr = "هذه الصورة مسجلة مسبقاً" });
-                //else
-                //{
+
                     int updatedRow = _articleRepository.UpdateArticleImageAfterInsert(modelObj);
                     return Ok(modelObj.Id);
-              //  }
             }
             catch (Exception ex)
             {

@@ -138,8 +138,7 @@ namespace DoctorConsult.Core.Repositories
                 Id = req.Id,
                 FileName = req.FileName,
                 Title = req.Title,
-                RequestTrackingId = req.RequestTrackingId,
-                //Subject = req.RequestTracking != null? req.RequestTracking.Request.Subject:""
+                RequestTrackingId = req.RequestTrackingId
             }).ToList();
         }
     }

@@ -18,6 +18,7 @@ namespace  DoctorConsult.ViewModels.RequestVM
             public string? Subject { get; set; }
             public string? RequestCode { get; set; }
             public DateTime RequestDate { get; set; }
+            public DateTime? ActionDate { get; set; }
             public string? CreatedBy { get; set; }
             public string? UserName { get; set; }
 

@@ -84,7 +84,7 @@ namespace ArticleConsult.Core.Repositories
         {
             List<IndexArticleVM.GetData> list = new List<IndexArticleVM.GetData>();
 
-            var lstArticles = _context.Articles.Include(a => a.Specialist).Where(a=>a.IsActive == true).ToList();
+            var lstArticles = _context.Articles.Include(a => a.Specialist).Where(a=>a.IsActive == true).OrderBy(a => a.OrderId).ToList();
 
 
             var countItems = lstArticles.ToList();
@@ -120,7 +120,7 @@ namespace ArticleConsult.Core.Repositories
         {
             List<IndexArticleVM.GetData> list = new List<IndexArticleVM.GetData>();
 
-            var lstArticles = _context.Articles.Include(a => a.Specialist).Where(a => a.IsActive == true && a.SpecialityId == specialityId).ToList();
+            var lstArticles = _context.Articles.Include(a => a.Specialist).Where(a => a.IsActive == true && a.SpecialityId == specialityId).OrderBy(a => a.OrderId).ToList();
 
 
             var countItems = lstArticles.ToList();
@@ -155,7 +155,7 @@ namespace ArticleConsult.Core.Repositories
         {
             List<IndexArticleVM.GetData> list = new List<IndexArticleVM.GetData>();
 
-            var lstArticles = _context.Articles.Include(a => a.Specialist).ToList();
+            var lstArticles = _context.Articles.Include(a => a.Specialist).OrderBy(a=>a.OrderId).ToList();
 
 
             var countItems = lstArticles.ToList();
@@ -195,7 +195,7 @@ namespace ArticleConsult.Core.Repositories
 
             IndexArticleVM mainClass = new IndexArticleVM();
             List<IndexArticleVM.GetData> list = new List<IndexArticleVM.GetData>();
-            var lstArticles = _context.Articles.Include(a => a.Specialist).ToList();
+            var lstArticles = _context.Articles.Include(a => a.Specialist).OrderBy(a => a.OrderId).ToList();
 
 
 

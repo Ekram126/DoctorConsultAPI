@@ -1,4 +1,5 @@
 ﻿using DoctorConsult.Domain.Interfaces;
+using DoctorConsult.Models;
 using DoctorConsult.ViewModels.RequestDocumentVM;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -50,6 +51,10 @@ namespace DoctorConsult.API.Controllers
         }
 
 
-
+        [Route("GetRequestDocumentsByRequestTrackingId/{trackId}")]
+        public IEnumerable<IndexRequestDocumentVM> GetRequestDocumentsByRequestTrackingId(int trackId)
+        {
+            return _requestDocumentService.GetRequestDocumentsByRequestTrackingId(trackId);
+        }
     }
 }

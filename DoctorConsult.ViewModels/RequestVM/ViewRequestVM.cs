@@ -22,6 +22,8 @@ namespace DoctorConsult.ViewModels.RequestVM
         public string? SpecialityNameAr { get; set; }
 
         public int SpecialityId { get; set; }
+
+        public int? StatusId { get; set; }
         public List<IndexRequestDocumentVM>? listDocuments { get; set; }
 
 

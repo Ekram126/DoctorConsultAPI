@@ -243,7 +243,7 @@ namespace DoctorConsult.Core.Repositories
             }
             #endregion
 
-            query = query.OrderByDescending(a => a.ResponseDate.HasValue ? a.ResponseDate.Value.Date : DateTime.MinValue);
+            query = query.OrderByDescending(a => a.ResponseDate.HasValue ? a.ResponseDate : DateTime.MinValue);
 
 
 
@@ -266,6 +266,7 @@ namespace DoctorConsult.Core.Repositories
                 getDataObj.RequestCode = req.Request != null ? req.Request.RequestCode : "";
                 getDataObj.Subject = req.Request.Subject;
                 getDataObj.RequestDate = req.Request.RequestDate;
+              
                 var lstTracks = _context.RequestTrackings.Include(a => a.RequestStatus).Where(a => a.RequestId == req.Request.Id).OrderByDescending(a => a.ResponseDate).ToList();
                 if (lstTracks.Count > 0)
                 {
@@ -275,6 +276,9 @@ namespace DoctorConsult.Core.Repositories
                     getDataObj.StatusNameAr = trackObj.RequestStatus != null ? trackObj.RequestStatus.NameAr : "";
                     getDataObj.StatusColor = trackObj.RequestStatus != null ? trackObj.RequestStatus.Color : "";
                     getDataObj.StatusIcon = trackObj.RequestStatus != null ? trackObj.RequestStatus.Icon : "";
+
+
+                    getDataObj.ActionDate = trackObj.ResponseDate;
                 }
                 getDataObj.Advice = req.Advice;
                 getDataObj.CreatedBy = req.Request.User != null ? req.Request.User.UserName : "";
@@ -417,6 +421,14 @@ namespace DoctorConsult.Core.Repositories
                 requestDTO.SpecialityName = req.Specialist != null ? req.Specialist.Name : "";
                 requestDTO.SpecialityNameAr = req.Specialist != null ? req.Specialist.NameAr:"";
                 requestDTO.SpecialityId = int.Parse(req.SpecialityId.ToString());
+
+
+               var  trackStatus = _context.RequestTrackings.Where(a => a.RequestId == id).OrderByDescending(a => a.ResponseDate).ToList();
+                if (trackStatus.Count > 0)
+                {
+                    requestDTO.StatusId = trackStatus[0].StatusId;
+                }
+
 
 
                 var lstTracks = _context.RequestTrackings.Where(a => a.RequestId == id).ToList();

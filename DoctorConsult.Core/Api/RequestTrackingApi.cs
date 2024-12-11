@@ -1,9 +1,9 @@
-﻿using  DoctorConsult.Domain.Interfaces;
+﻿using DoctorConsult.Domain.Interfaces;
 using DoctorConsult.Models;
 using DoctorConsult.ViewModels.RequestTrackingVM;
 using Microsoft.EntityFrameworkCore;
 
-namespace  DoctorConsult.Core.Repositories
+namespace DoctorConsult.Core.Repositories
 {
     public class RequestTrackingApi : IRequestTrackingRepository
     {
@@ -22,18 +22,26 @@ namespace  DoctorConsult.Core.Repositories
                 {
                     RequestTracking requestTracking = new RequestTracking();
                     requestTracking.Advice = createRequestTracking.Advice;
-                 
+
                     if (createRequestTracking.StrRespondDate != "")
-                    requestTracking.ResponseDate = DateTime.Parse(createRequestTracking.StrRespondDate); //requestDescriptionDTO.DescriptionDate;
+                        requestTracking.ResponseDate = DateTime.Parse(createRequestTracking.StrRespondDate); //requestDescriptionDTO.DescriptionDate;
                     else
                     {
                         DateTime convertedDate = DateTime.Now;
-                        requestTracking.ResponseDate =  convertedDate.ToLocalTime();
+
+
+                        DateTime utcTime = convertedDate.ToUniversalTime(); // convert it to Utc using timezone setting of server computer
+                        TimeZoneInfo egypt = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, egypt); // convert from utc to local
+                        requestTracking.ResponseDate = localTime.ToLocalTime();
+
+
+                        //requestTracking.ResponseDate =  convertedDate.ToLocalTime();
                     }
                     requestTracking.RequestId = int.Parse(createRequestTracking.RequestId.ToString());
                     requestTracking.StatusId = createRequestTracking.StatusId;
                     requestTracking.CreatedById = createRequestTracking.CreatedById;
-                        requestTracking.AssignTo = createRequestTracking.AssignTo;
+                    requestTracking.AssignTo = createRequestTracking.AssignTo;
                     _context.RequestTrackings.Add(requestTracking);
                     _context.SaveChanges();
                     createRequestTracking.Id = requestTracking.Id;
@@ -67,8 +75,8 @@ namespace  DoctorConsult.Core.Repositories
         public IndexRequestTrackingVM GetAllTrackingsByRequestId(int RequestId)
         {
             IndexRequestTrackingVM mainClass = new IndexRequestTrackingVM();
-                     
-            
+
+
             var trackings = _context.RequestTrackings.Include(a => a.Request).Include(a => a.Request.User).Include(a => a.RequestStatus)
                    .Where(r => r.RequestId == RequestId).OrderByDescending(t => t.ResponseDate).Select(track => new IndexRequestTrackingVM.GetData
                    {
@@ -76,8 +84,8 @@ namespace  DoctorConsult.Core.Repositories
 
                        Advice = track.Advice,
                        ResponseDate = track.ResponseDate,
-                       CreatedByName = track.Request.User != null? track.User.UserName:"",
-                       AssignedToUser = track.Request.User != null ? track.AssignToUser.UserName:"",
+                       CreatedByName = track.Request.User != null ? track.User.UserName : "",
+                       AssignedToUser = track.Request.User != null ? track.AssignToUser.UserName : "",
                        StatusId = track.StatusId != null ? (int)track.StatusId : 0,
                        StatusName = track.RequestStatus != null ? track.RequestStatus.Name : "",
                        StatusNameAr = track.RequestStatus != null ? track.RequestStatus.NameAr : "",
@@ -87,7 +95,7 @@ namespace  DoctorConsult.Core.Repositories
 
 
             mainClass.Results = trackings;
-            mainClass.Count= trackings.Count;
+            mainClass.Count = trackings.Count;
 
             return mainClass;
         }
@@ -95,7 +103,7 @@ namespace  DoctorConsult.Core.Repositories
         public IndexRequestTrackingVM.GetData GetById(int id)
         {
             var RequestTrackingObj = _context.RequestTrackings.Include(a => a.Request)
-             
+
                 .Select(track => new IndexRequestTrackingVM.GetData
                 {
                     Id = track.Id,
@@ -109,7 +117,7 @@ namespace  DoctorConsult.Core.Repositories
                     StatusNameAr = track.RequestStatus != null ? track.RequestStatus.NameAr : "",
                     StatusColor = track.RequestStatus != null ? track.RequestStatus.Color : "",
                     StatusIcon = track.RequestStatus != null ? track.RequestStatus.Icon : "",
-                
+
 
                 }).FirstOrDefault();
             return RequestTrackingObj;

@@ -2,9 +2,11 @@
 using DoctorConsult.Domain.Interfaces;
 using DoctorConsult.Models;
 using DoctorConsult.ViewModels.SpecialistVM;
+using DoctorConsult.Web.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace SpecialistConsult.API.Controllers
 {
@@ -72,8 +74,17 @@ namespace SpecialistConsult.API.Controllers
         {
             try
             {
+                int id = SpecialistVM.Id;
+                var lstbrandsArNames = _specialistRepository.GetAll().ToList().Where(a => a.Code == SpecialistVM.Code && a.Id != id).ToList();
+                if (lstbrandsArNames.Count > 0)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "special", Message = "This order already exist!", MessageAr = "هذا الترتيب مسجل مسبقاً" });
+                }
+                else
+                {
 
-                int updatedRow = _specialistRepository.Update(SpecialistVM);
+                    int updatedRow = _specialistRepository.Update(SpecialistVM);
+                }
 
 
             }
@@ -89,10 +100,15 @@ namespace SpecialistConsult.API.Controllers
 
         [HttpPost]
         [Route("AddSpecialist")]
-        public int Add(CreateSpecialistVM SpecialistVM)
+        public IActionResult Add(CreateSpecialistVM SpecialistVM)
         {
+
+            var existCode = _specialistRepository.GetAll().Where(a => a.Code == SpecialistVM.Code).ToList();
+            if (existCode.Count > 0)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "special", Message = "This order already exist!", MessageAr = "هذا الترتيب مسجل مسبقاً" });
+
             var savedId = _specialistRepository.Add(SpecialistVM);
-            return savedId;
+            return Ok(savedId);
 
 
         }
