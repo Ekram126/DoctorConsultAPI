@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DoctorConsult.API.Controllers
 {
@@ -208,8 +209,13 @@ namespace DoctorConsult.API.Controllers
                 {
                     foreach (var role in userObj.RoleNames)
                     {
-                        string? roleName = _roleManager?.Roles?.Where(a => a.Name == role).FirstOrDefault().Name;
-                        await _userManager.AddToRoleAsync(user, roleName);
+                        //if (role == "")
+                        //    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "role", Message ="Please select doctor role", MessageAr = "اختر دور الدكتور" });
+                        //else
+                        //{
+                            string? roleName = _roleManager?.Roles?.Where(a => a.Name == role).FirstOrDefault().Name;
+                            await _userManager.AddToRoleAsync(user, roleName);
+                       // }
                     }
                 }
             }
@@ -253,7 +259,7 @@ namespace DoctorConsult.API.Controllers
         public async Task<List<IndexUserVM.GetData>> ListOfRegisteredDoctors(int specialityId)
         {
             List<IndexUserVM.GetData> lstUsers = new List<IndexUserVM.GetData>();
-            var lstDoctors = _context.Doctors.Where(a => a.SpecialistId == specialityId).ToList();
+            var lstDoctors = _context.Doctors.Where(a => a.SpecialistId == specialityId && a.IsActive == true).ToList();
             if (lstDoctors.Count > 0)
             {
                 var role = await _roleManager.FindByNameAsync("Doctor");
@@ -315,7 +321,7 @@ namespace DoctorConsult.API.Controllers
         public async Task<List<IndexUserVM.GetData>> ListOfRegisteredSupervisorDoctorsBySpecialityId(int specialityId)
         {
             List<IndexUserVM.GetData> lstUsers = new List<IndexUserVM.GetData>();
-            var lstDoctors = _context.Doctors.Where(a => a.SpecialistId == specialityId && a.ParentId == 0).ToList();
+            var lstDoctors = _context.Doctors.Where(a => a.SpecialistId == specialityId && a.IsActive == true && a.ParentId == 0).ToList();
             if (lstDoctors.Count > 0)
             {
                 var role = await _roleManager.FindByNameAsync("SupervisorDoctor");

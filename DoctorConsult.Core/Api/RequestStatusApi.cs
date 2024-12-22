@@ -2,6 +2,7 @@
 using DoctorConsult.Models;
 using DoctorConsult.ViewModels.RequestStatusVM;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace DoctorConsult.Core.Repositories
@@ -61,12 +62,21 @@ namespace DoctorConsult.Core.Repositories
         }
 
 
-
+        /// <summary>
+        /// Get Request Status the by identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         public RequestStatus GetById(int id)
         {
             return _context.RequestStatus.Find(id);
         }
 
+        /// <summary>
+        /// Updates the specified edit request status vm.
+        /// </summary>
+        /// <param name="editRequestVM">The edit request vm.</param>
+        /// <returns></returns>
         public int Update(RequestStatus editRequestVM)
         {
             try
@@ -86,6 +96,11 @@ namespace DoctorConsult.Core.Repositories
             }
             return 0;
         }
+
+        /// <summary>
+        /// Get all Request Status.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<IndexRequestStatusVM.GetData> GetAll()
         {
             return _context.RequestStatus.Select(sts => new IndexRequestStatusVM.GetData
@@ -98,6 +113,11 @@ namespace DoctorConsult.Core.Repositories
             }).ToList();
         }
 
+        /// <summary>
+        /// Gets the request status by user identifier.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
         public IndexRequestStatusVM GetRequestStatusByUserId(string userId)
         {
             IndexRequestStatusVM mainClass = new IndexRequestStatusVM();
@@ -144,7 +164,7 @@ namespace DoctorConsult.Core.Repositories
             }
             if (lstRoleNames.Contains("SupervisorDoctor"))
             {
-
+                query = query.Where(a => a.FirstOrDefault().AssignTo == userId).Where(a => !string.IsNullOrEmpty(a.FirstOrDefault().AssignTo));
             }
             if (lstRoleNames.Contains("Admin"))
             {
@@ -163,16 +183,16 @@ namespace DoctorConsult.Core.Repositories
                             lstOpenTracks.Add(req.FirstOrDefault());
                             break;
                         case 2:
-                            lstCloseTracks.Add(req.FirstOrDefault());
-                            break;
-                        case 3:
                             lstInProgressTracks.Add(req.FirstOrDefault());
                             break;
-                        case 4:
+                        case 3:
                             lstSolvedTracks.Add(req.FirstOrDefault());
                             break;
-                        case 5:
+                        case 4:
                             lstApprovedTracks.Add(req.FirstOrDefault());
+                            break;
+                        case 5:
+                            lstCloseTracks.Add(req.FirstOrDefault());
                             break;
                     }
 
@@ -190,6 +210,12 @@ namespace DoctorConsult.Core.Repositories
         }
 
 
+        /// <summary>
+        /// Gets the request status by user identifier and speciality identifier.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="specialityId">The speciality identifier.</param>
+        /// <returns></returns>
         public IndexRequestStatusVM GetRequestStatusByUserIdAndSpecialityId(string userId, int specialityId)
         {
             IndexRequestStatusVM mainClass = new IndexRequestStatusVM();
@@ -219,9 +245,17 @@ namespace DoctorConsult.Core.Repositories
             mainClass.ListStatus = lstStatus;
 
 
-           var query = _context.RequestTrackings.Include(a => a.Request).Include(a => a.RequestStatus).Include(a => a.User).ToList()
-                                   .GroupBy(track => track.RequestId).ToList()
-                                   .Select(g => g.OrderByDescending(track => track.ResponseDate));
+            //var query = _context.RequestTrackings.Include(a => a.Request).Include(a => a.RequestStatus).Include(a => a.User).ToList()
+            //                        .GroupBy(track => track.RequestId).ToList()
+            //                        .Select(g => g.OrderByDescending(track => track.ResponseDate));
+
+
+            var query = _context.RequestTrackings.Include(a => a.Request)
+                                .Include(a => a.RequestStatus).Include(a => a.User)
+                                .GroupBy(track => track.RequestId).ToList()
+                                .Select(g => g.OrderByDescending(track => track.ResponseDate))
+                                .AsQueryable(); // Keep the query deferred
+
 
             if (lstRoleNames.Contains("Doctor"))
             {
@@ -233,7 +267,9 @@ namespace DoctorConsult.Core.Repositories
             }
             if (lstRoleNames.Contains("SupervisorDoctor"))
             {
-                query = query.Where(a => a.FirstOrDefault().Request.SpecialityId == specialityId);
+                // query = query.Where(a => a.FirstOrDefault().Request.SpecialityId == specialityId && (a.FirstOrDefault().AssignTo == userId || a.FirstOrDefault().CreatedById == userId)); 
+
+                query = query.Where(g => g.Any(track => track.Request.SpecialityId == specialityId && (track.AssignTo == userId || track.CreatedById == userId)));
             }
             if (lstRoleNames.Contains("Admin"))
             {
@@ -252,16 +288,16 @@ namespace DoctorConsult.Core.Repositories
                             lstOpenTracks.Add(req.FirstOrDefault());
                             break;
                         case 2:
-                            lstCloseTracks.Add(req.FirstOrDefault());
-                            break;
-                        case 3:
                             lstInProgressTracks.Add(req.FirstOrDefault());
                             break;
-                        case 4:
+                        case 3:
                             lstSolvedTracks.Add(req.FirstOrDefault());
                             break;
-                        case 5:
+                        case 4:
                             lstApprovedTracks.Add(req.FirstOrDefault());
+                            break;
+                        case 5:
+                            lstCloseTracks.Add(req.FirstOrDefault());
                             break;
                     }
 
@@ -269,14 +305,19 @@ namespace DoctorConsult.Core.Repositories
             }
 
             mainClass.CountOpen = lstOpenTracks.Count;
-            mainClass.CountClosed = lstCloseTracks.Count;
+            //Pending
             mainClass.CountInProgress = lstInProgressTracks.Count;
+            //respond
             mainClass.CountSolved = lstSolvedTracks.Count;
+
             mainClass.CountApproved = lstApprovedTracks.Count;
+            mainClass.CountClosed = lstCloseTracks.Count;
             mainClass.CountAll = query.ToList().Count();
 
             return mainClass;
         }
+
+
 
     }
 }

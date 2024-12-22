@@ -11,7 +11,7 @@ namespace   DoctorConsult.Models
     {
 
         public int Id { get; set; }
-        public string? Code { get; set; }
+        public int? Code { get; set; }
 
 
         [StringLength(50)]

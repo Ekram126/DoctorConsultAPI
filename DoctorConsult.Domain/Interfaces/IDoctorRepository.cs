@@ -1,6 +1,7 @@
 ﻿using DoctorConsult.Models;
 using DoctorConsult.ViewModels.ArticleVM;
 using DoctorConsult.ViewModels.DoctorVM;
+using DoctorConsult.ViewModels.RequestVM;
 using DoctorConsult.ViewModels.UserVM;
 
 namespace DoctorConsult.Domain.Interfaces
@@ -18,6 +19,7 @@ namespace DoctorConsult.Domain.Interfaces
         Task<List<IndexUserVM.GetData>> CheckDoctorRole(DoctorUserRole doctorUserRoleObj);
 
         public int UpdateDoctorImageAfterInsert(CreateDoctorVM modelObj);
+        GeneratedDoctorCodeVM GenerateDoctorCode();
 
     }
 }

@@ -3,6 +3,7 @@ using DoctorConsult.ViewModels.RequestVM;
 using DoctorConsult.Domain.Interfaces;
 using System.Net;
 using System.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
 
 namespace DoctorConsult.API.Controllers
 {
@@ -26,11 +27,12 @@ namespace DoctorConsult.API.Controllers
         [HttpPost]
         [Route("ListRequests/{pageNumber}/{pageSize}")]
         public async Task<IndexRequestVM> ListRequests(SortAndFilterRequestVM data, int pageNumber, int pageSize)
-       {
+        {
             return await _requestService.ListRequests(data, pageNumber, pageSize);
         }
 
-        [HttpGet]
+
+           [HttpGet]
         [Route("GenerateRequestNumber")]
         public GeneratedRequestNumberVM GenerateRequestNumber()
         {
@@ -47,7 +49,7 @@ namespace DoctorConsult.API.Controllers
 
         [HttpGet]
         [Route("GetRequestById/{requestId}")]
-        public ViewRequestVM AddRequest(int requestId)
+        public ViewRequestVM GetRequestById(int requestId)
         {
             var requestObj = _requestService.GetById(requestId);
             return requestObj;
@@ -55,6 +57,34 @@ namespace DoctorConsult.API.Controllers
 
 
 
+        [HttpPut]
+        [Route("UpdateRequest")]
+        public IActionResult UpdateRequest(EditRequestVM editRequestVM)
+        {
+            var requestId = _requestService.Update(editRequestVM);
+            return  Ok( requestId);
+        }
 
+
+        [HttpGet("GetUnreadNotificationsCount/{userId}/{specialityId}")]
+        public async Task<IndexRequestVM> GetUnreadNotificationsCount(string userId, int specialityId)
+        {
+            var unreadCount = await _requestService.GetUnreadNotificationsCount(userId,specialityId);
+            return unreadCount;
+        }
+
+
+
+
+
+
+
+        [HttpPut]
+        [Route("UpdateIsReadRequest")]
+        public IActionResult UpdateIsReadRequest(EditRequestVM editRequestVM)
+        {
+            var requestId = _requestService.UpdateIsReadRequest(editRequestVM);
+            return Ok(requestId);
+        }
     }
 }

@@ -28,15 +28,7 @@ namespace DoctorConsult.Core.Repositories
                     else
                     {
                         DateTime convertedDate = DateTime.Now;
-
-
-                        DateTime utcTime = convertedDate.ToUniversalTime(); // convert it to Utc using timezone setting of server computer
-                        TimeZoneInfo egypt = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, egypt); // convert from utc to local
-                        requestTracking.ResponseDate = localTime.ToLocalTime();
-
-
-                        //requestTracking.ResponseDate =  convertedDate.ToLocalTime();
+                        requestTracking.ResponseDate =  convertedDate.ToLocalTime();
                     }
                     requestTracking.RequestId = int.Parse(createRequestTracking.RequestId.ToString());
                     requestTracking.StatusId = createRequestTracking.StatusId;
@@ -100,43 +92,45 @@ namespace DoctorConsult.Core.Repositories
             return mainClass;
         }
 
-        public IndexRequestTrackingVM.GetData GetById(int id)
+        public EditRequestTrackingVM GetById(int id)
         {
             var RequestTrackingObj = _context.RequestTrackings.Include(a => a.Request)
-
-                .Select(track => new IndexRequestTrackingVM.GetData
+                .Where(a=>a.Id == id)
+                .Select(track => new EditRequestTrackingVM
                 {
                     Id = track.Id,
                     Advice = track.Advice,
-                    ResponseDate = track.ResponseDate,
+                    ResponseDate = track.ResponseDate != null ? track.ResponseDate:null,
                     //CreatedById = track.CreatedById,
                     //DoctorName = track.Doctor.Name,
                     //ManagerDoctorName = track.Doctor.NameAr,
                     StatusId = track.StatusId != null ? (int)track.StatusId : 0,
-                    StatusName = track.RequestStatus != null ? track.RequestStatus.Name : "",
-                    StatusNameAr = track.RequestStatus != null ? track.RequestStatus.NameAr : "",
-                    StatusColor = track.RequestStatus != null ? track.RequestStatus.Color : "",
-                    StatusIcon = track.RequestStatus != null ? track.RequestStatus.Icon : "",
-
-
+                    //StatusName = track.RequestStatus != null ? track.RequestStatus.Name : "",
+                    //StatusNameAr = track.RequestStatus != null ? track.RequestStatus.NameAr : "",
+                    //StatusColor = track.RequestStatus != null ? track.RequestStatus.Color : "",
+                    //StatusIcon = track.RequestStatus != null ? track.RequestStatus.Icon : "",
                 }).FirstOrDefault();
             return RequestTrackingObj;
         }
 
-        public void Update(EditRequestTrackingVM editRequestTracking)
+        public int Update(EditRequestTrackingVM editRequestTracking)
         {
             try
             {
                 RequestTracking requestTracking = _context.RequestTrackings.Find(editRequestTracking.Id);
                 requestTracking.Advice = editRequestTracking.Advice;
-                requestTracking.ResponseDate = DateTime.Now;
+                if (editRequestTracking.StrResponseDate != "")
+                    requestTracking.ResponseDate = DateTime.Parse(editRequestTracking.StrResponseDate.ToString());
+
                 _context.Entry(requestTracking).State = EntityState.Modified;
                 _context.SaveChanges();
+                return editRequestTracking.Id;
             }
             catch (Exception ex)
             {
                 msg = ex.Message;
             }
+            return 0;
         }
 
 

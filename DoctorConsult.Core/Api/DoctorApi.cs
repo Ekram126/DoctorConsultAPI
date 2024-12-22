@@ -6,6 +6,9 @@ using DoctorConsult.ViewModels.UserVM;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using static Azure.Core.HttpHeader;
+using System.Net;
+using System.Reflection;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
@@ -207,15 +210,20 @@ namespace DoctorConsult.Core.Repositories
             }
 
             #region Load Data Depend on User
+            var doctorEmail = lstDoctors.Where(a => a.Email == userObj.Email).ToList();
+            if (doctorEmail.Count() > 0)
+            {
+                var doctorObj = doctorEmail[0];
+                if (lstRoleNames.Contains("SupervisorDoctor"))
+                {
+                    lstDoctors = lstDoctors.Where(a => a.ParentId == doctorObj.Id).ToList();
+                }
+                if (lstRoleNames.Contains("Admin"))
+                {
+                    lstDoctors = lstDoctors;
+                }
+            }
 
-            //if (lstRoleNames.Contains("SupervisorDoctor"))
-            //{
-            //    lstDoctors = lstDoctors.Where(a => a.Request.CreatedById == userObj.Id);
-            //}
-            //if (lstRoleNames.Contains("Admin"))
-            //{
-            //    lstDoctors = lstDoctors;
-            //}
 
             #endregion
 
@@ -298,15 +306,6 @@ namespace DoctorConsult.Core.Repositories
                         lstDoctors = lstDoctors.OrderByDescending(x => x.NameAr).ToList();
                     }
                     break;
-
-
-
-
-
-
-
-
-
                 case "Join Date":
                 case "تاريخ الالتحاق":
                     if (data.SortObj?.SortStatus == "ascending")
@@ -385,7 +384,8 @@ namespace DoctorConsult.Core.Repositories
 
                     if (item.ParentId == 0)
                     {
-                        getDataObj.SupervisorDoctor = item.Name;
+                        getDataObj.SupervisorDoctor =  item.Name;
+                        getDataObj.DoctorRole = "SupervisorDoctor : ";
                     }
                     else
                     {
@@ -393,9 +393,9 @@ namespace DoctorConsult.Core.Repositories
                         if (child.Count > 0)
                         {
                             var s = _context.Doctors.Find(child[0].ParentId);
-                            getDataObj.SupervisorDoctor = s.Name;
+                            getDataObj.SupervisorDoctor =  s.Name;
+                            getDataObj.DoctorRole = "Doctor : ";
                         }
-
                     }
 
                     list.Add(getDataObj);
@@ -412,28 +412,35 @@ namespace DoctorConsult.Core.Repositories
         /// <returns></returns>
         public EditDoctorVM GetById(int id)
         {
-            return _context.Doctors.Include(a => a.Specialist).Where(a => a.Id == id).Select(item => new EditDoctorVM
+            EditDoctorVM item = new EditDoctorVM();
+            var doctors = _context.Doctors.Include(a => a.Specialist).Where(a => a.Id == id).ToList();
+            if (doctors.Count > 0)
             {
-                Id = item.Id,
-                Code = item.Code,
-                Name = item.Name,
-                NameAr = item.NameAr,
-                NationalId = item.NationalId,
-                Dob = item.Dob,
-                Mobile = item.Mobile,
-                Email = item.Email,
-                Address = item.Address,
-                AddressAr = item.AddressAr,
-                GradDate = item.GradDate,
-                JoinDate = item.JoinDate,
-                Remarks = item.Remarks,
-                GenderId = item.GenderId,
-                SpecialistId = item.SpecialistId,
-                DoctorImg = item.DoctorImg,
-                SpecialityName = item.Specialist.Name,
-                SpecialityNameAr = item.Specialist.NameAr,
-                IsActive = item.IsActive
-            }).First();
+                item.Id = doctors[0].Id;
+                item.Code = doctors[0].Code;
+                item.Name = doctors[0].Name;
+                item.NameAr = doctors[0].NameAr;
+                item.NationalId = doctors[0].NationalId;
+                item.Dob = doctors[0].Dob?.Date;
+                item.StrDob = doctors[0].Dob.HasValue ? doctors[0].Dob.Value.Date.ToShortDateString() : "";
+                item.Mobile = doctors[0].Mobile;
+                item.Email = doctors[0].Email;
+                item.Address = doctors[0].Address;
+                item.AddressAr = doctors[0].AddressAr;
+                item.GradDate = doctors[0].GradDate?.Date;
+                item.StrGradDate = doctors[0].GradDate.HasValue ? doctors[0].GradDate.Value.Date.ToShortDateString() : "";
+                item.JoinDate = doctors[0].JoinDate?.Date;
+                item.StrJoinDate = doctors[0].JoinDate.HasValue ? doctors[0].JoinDate.Value.Date.ToShortDateString():"";
+                item.Remarks = doctors[0].Remarks;
+                item.GenderId = doctors[0].GenderId;
+                item.SpecialistId = doctors[0].SpecialistId;
+                item.DoctorImg = doctors[0].DoctorImg;
+                item.ParentId = doctors[0].ParentId;
+                item.SpecialityName = doctors[0].Specialist.Name;
+                item.SpecialityNameAr = doctors[0].Specialist.NameAr;
+                item.IsActive = doctors[0].IsActive;
+            }
+            return item;
         }
 
         /// <summary>
@@ -486,18 +493,25 @@ namespace DoctorConsult.Core.Repositories
                 DoctorObj.Name = model.Name;
                 DoctorObj.NameAr = model.NameAr;
                 DoctorObj.NationalId = model.NationalId;
-                DoctorObj.Dob = model.Dob;
+                if (model.StrDob != "")
+                    DoctorObj.Dob = DateTime.Parse(model.StrDob.ToString());
                 DoctorObj.Mobile = model.Mobile;
                 DoctorObj.Email = model.Email;
                 DoctorObj.Address = model.Address;
                 DoctorObj.AddressAr = model.AddressAr;
-                DoctorObj.GradDate = model.GradDate;
-                DoctorObj.JoinDate = model.JoinDate;
+                if (model.StrGradDate != "")
+                    DoctorObj.GradDate = DateTime.Parse(model.StrGradDate.ToString());
+
+                if (model.StrJoinDate != "")
+                    DoctorObj.JoinDate = DateTime.Parse(model.StrJoinDate.ToString());
+
+
                 DoctorObj.Remarks = model.Remarks;
                 DoctorObj.GenderId = model.GenderId;
                 DoctorObj.SpecialistId = model.SpecialistId;
                 DoctorObj.IsActive = model.IsActive;
                 DoctorObj.DoctorImg = model.DoctorImg;
+                DoctorObj.ParentId = model.ParentId;
                 _context.Entry(DoctorObj).State = EntityState.Modified;
                 _context.SaveChanges();
                 return DoctorObj.Id;
@@ -522,5 +536,32 @@ namespace DoctorConsult.Core.Repositories
             _context.SaveChanges();
             return doctorObj.Id;
         }
+
+
+
+        /// <summary>
+        /// Generates the doctor code.
+        /// </summary>
+        /// <returns></returns>
+        public GeneratedDoctorCodeVM GenerateDoctorCode()
+        {
+            GeneratedDoctorCodeVM doctorObj = new GeneratedDoctorCodeVM();
+            string doctorCode = "DT";
+
+            var lstIds = _context.Requests.ToList();
+            if (lstIds.Count > 0)
+            {
+                var code = lstIds.LastOrDefault().Id;
+                doctorObj.Code = doctorCode + (code + 1);
+            }
+            else
+            {
+                doctorObj.Code = doctorCode + 1;
+            }
+
+            return doctorObj;
+        }
+
+     
     }
 }

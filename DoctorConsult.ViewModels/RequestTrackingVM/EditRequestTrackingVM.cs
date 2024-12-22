@@ -12,7 +12,7 @@ namespace  DoctorConsult.ViewModels.RequestTrackingVM
         public string? Advice { get; set; }
         public string? StrResponseDate { get; set; }
 
-        public DateTime ResponseDate { get; set; }
+        public DateTime? ResponseDate { get; set; }
         public int? StatusId { get; set; }
         public int? RequestId { get; set; }
         public string? DoctorId { get; set; }

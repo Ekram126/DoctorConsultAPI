@@ -15,9 +15,9 @@ namespace DoctorConsult.Domain.Interfaces
         RequestTracking GetFirstTrackForRequestByRequestId(int requestId);
         RequestTracking GetLastTrackForRequestByRequestId(int requestId);
         IndexRequestTrackingVM GetAllTrackingsByRequestId(int RequestId);
-        IndexRequestTrackingVM.GetData GetById(int id);
+        EditRequestTrackingVM GetById(int id);
         int Add(CreateRequestTrackingVM createRequestTracking);
-        void Update(EditRequestTrackingVM editRequestTracking);
+        int Update(EditRequestTrackingVM editRequestTracking);
         void Delete(int id);
     }
 }

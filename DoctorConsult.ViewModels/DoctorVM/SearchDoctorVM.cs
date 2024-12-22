@@ -29,7 +29,7 @@ namespace  DoctorConsult.ViewModels.DoctorVM
         public string? Remarks { get; set; }
         public int? GenderId { get; set; }
 
-        public int? SpecialistId { get; set; }
+        public int? specialityId { get; set; }
 
 
 

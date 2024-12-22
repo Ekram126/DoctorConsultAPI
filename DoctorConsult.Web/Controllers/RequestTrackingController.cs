@@ -37,6 +37,14 @@ namespace DoctorConsult.API.Controllers
         }
 
 
+        [HttpPut]
+        [Route("UpdateRequestTracking")]
+        public int UpdateRequestTracking(EditRequestTrackingVM editRequestTrackingVM)
+        {
+            return _requestTrackingService.Update(editRequestTrackingVM);
+        }
+
+
 
 
         [HttpPost]
@@ -118,5 +126,14 @@ namespace DoctorConsult.API.Controllers
         {
             return _requestTrackingService.GetAllTrackingsByRequestId(reqId);
         }
+
+     [HttpGet]
+        [Route("GetRequestTrackingById/{trackId}")]
+        public EditRequestTrackingVM GetRequestTrackingById(int trackId)
+        {
+            return _requestTrackingService.GetById(trackId);
+        }
+
+
     }
 }

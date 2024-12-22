@@ -46,6 +46,9 @@ namespace DoctorConsult.ViewModels.DoctorVM
             public string? DoctorImg { get; set; }
 
             public bool? IsActive { get; set; }
+
+            public string? DoctorRole { get; set; }
+
         }
     }
 }

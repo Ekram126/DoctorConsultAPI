@@ -46,8 +46,8 @@ namespace DoctorConsult.Core.Repositories
                         PatientObj.Dob = DateTime.Parse(model.StrDob);
 
                     PatientObj.GenderId = model.GenderId;
-
-                    PatientObj.CountryId = model.CountryId;
+                    if (model.CountryId != 0)
+                        PatientObj.CountryId = model.CountryId;
                     _context.Patients.Add(PatientObj);
                     _context.SaveChanges();
                     return PatientObj.Id;

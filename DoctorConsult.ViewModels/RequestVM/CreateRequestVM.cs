@@ -17,6 +17,8 @@ namespace  DoctorConsult.ViewModels.RequestVM
         public string? Complain { get; set; }
         public string? CreatedById { get; set; }
         public int? SpecialityId { get; set; }
+        public bool IsRead { get; set; }
+
 
 
 

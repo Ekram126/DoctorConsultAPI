@@ -14,8 +14,13 @@ namespace DoctorConsult.Domain.Interfaces
         Task<IndexRequestVM> ListRequests(SortAndFilterRequestVM data, int pageNumber, int pageSize);
         ViewRequestVM GetById(int id);
         int Add(CreateRequestVM createRequestVM);
-        void Update(EditRequestVM editRequestVM);
+        int Update(EditRequestVM editRequestVM);
         void Delete(int id);
-        GeneratedRequestNumberVM GenerateRequestNumber(); 
+        GeneratedRequestNumberVM GenerateRequestNumber();
+
+        Task<IndexRequestVM> GetUnreadNotificationsCount(string userId, int specialityId);
+
+        int UpdateIsReadRequest(EditRequestVM editRequestVM);
+
     }
 }

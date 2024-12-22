@@ -9,7 +9,7 @@ namespace DoctorConsult.ViewModels.SpecialistVM
     public class SortSpecialistVM
     {
 
-        public string? Code { get; set; }
+        public int? Code { get; set; }
         public string? Name { get; set; }
         public string? NameAr { get; set; }
 

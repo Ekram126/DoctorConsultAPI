@@ -12,7 +12,7 @@ namespace DoctorConsult.ViewModels.SpecialistVM
         public int Id { get; set; }
 
 
-        public string? Code { get; set; }
+        public int? Code { get; set; }
 
         public string? Name { get; set; }
 

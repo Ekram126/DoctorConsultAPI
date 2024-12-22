@@ -2,6 +2,7 @@
 using DoctorConsult.Models;
 using DoctorConsult.ViewModels.ArticleVM;
 using DoctorConsult.ViewModels.DoctorVM;
+using DoctorConsult.ViewModels.RequestVM;
 using DoctorConsult.ViewModels.UserVM;
 using DoctorConsult.Web.Helpers;
 using Microsoft.AspNetCore.Identity;
@@ -41,7 +42,7 @@ namespace DoctorConsult.API.Controllers
         [Route("ListAllDoctors")]
         public List<IndexDoctorVM.GetData> GetAll()
         {
-            return  _doctorRepository.GetAll();
+            return _doctorRepository.GetAll();
         }
 
         [HttpPost]
@@ -51,10 +52,15 @@ namespace DoctorConsult.API.Controllers
             return await _doctorRepository.CheckDoctorRole(doctorUserRoleObj);
         }
 
+        [HttpGet]
+        [Route("GenerateDoctorCode")]
+        public GeneratedDoctorCodeVM GenerateDoctorCode()
+        {
+            return _doctorRepository.GenerateDoctorCode();
+        }
 
 
-
-     [HttpGet]
+        [HttpGet]
         [Route("GetDoctorsBySpecialityId/{specialityId}")]
         public async Task<List<IndexUserVM.GetData>> GetDoctorsBySpecialityId(int specialityId)
         {
@@ -74,7 +80,17 @@ namespace DoctorConsult.API.Controllers
         {
             try
             {
-                int updatedRow = _doctorRepository.Update(DoctorVM);
+                int id = DoctorVM.Id;
+                var codeExist = _doctorRepository.GetAll().ToList().Where(a => a.Code == DoctorVM.Code && a.Id != id).ToList();
+                if (codeExist.Count > 0)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "code", Message = "This code already exist!", MessageAr = "هذا الكود مسجل مسبقاً" });
+                }
+                else
+                {
+
+                    int updatedRow = _doctorRepository.Update(DoctorVM);
+                }
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -94,6 +110,10 @@ namespace DoctorConsult.API.Controllers
             var emailExists = _doctorRepository.GetAll().Where(a => a.Email == DoctorVM.Email).ToList();
             if (emailExists.Count > 0)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "email", Message = "User email already exists!", MessageAr = "هذا البريد الإلكتروني مسجل مسبقاً" });
+
+            var codeExists = _doctorRepository.GetAll().Where(a => a.Code == DoctorVM.Code).ToList();
+            if (codeExists.Count > 0)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "code", Message = "This code already exist!", MessageAr = "هذا الكود مسجل مسبقاً" });
 
 
             var savedId = _doctorRepository.Add(DoctorVM);
@@ -151,7 +171,7 @@ namespace DoctorConsult.API.Controllers
             {
                 int updatedRow = _doctorRepository.UpdateDoctorImageAfterInsert(modelObj);
                 return Ok(modelObj.Id);
-          
+
             }
             catch (Exception ex)
             {

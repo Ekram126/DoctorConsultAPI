@@ -24,8 +24,13 @@ namespace  DoctorConsult.ViewModels.DoctorVM
         public string? Address { get; set; }
 
         public string? AddressAr { get; set; }
+
+        public string? StrDob { get; set; }
+
+        public string? StrGradDate { get; set; }
         public DateTime? GradDate { get; set; }
 
+        public string? StrJoinDate { get; set; }
         public DateTime? JoinDate { get; set; }
 
         public string? Remarks { get; set; }
@@ -39,6 +44,8 @@ namespace  DoctorConsult.ViewModels.DoctorVM
         public string? DoctorImg { get; set; }
 
         public bool? IsActive { get; set; }
+
+        public int? ParentId { get; set; }
 
     }
 }

@@ -15,7 +15,7 @@ namespace DoctorConsult.Models
         public string? Complain { get; set; }
         public DateTime RequestDate { get; set; }
 
-      
+        public bool IsRead { get; set; }
 
 
         public string? CreatedById { get; set; }

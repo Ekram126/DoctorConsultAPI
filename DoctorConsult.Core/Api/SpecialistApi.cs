@@ -235,9 +235,9 @@ namespace SpecialistConsult.Core.Repositories
             var lstIds = _context.Specialists.ToList();
             if (lstIds.Count > 0)
             {
-                var code = lstIds?.LastOrDefault()?.Code;
+                int? code = lstIds?.LastOrDefault()?.Code;
                 // Convert the code to a number and increment
-                int incrementedCode = int.Parse(code) + 1;
+                int incrementedCode = int.Parse(code.ToString()) + 1;
                 numberObj.SprcialityCode = WO + incrementedCode.ToString().PadLeft(desiredLength, '0');
             }
             else
