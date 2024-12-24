@@ -108,7 +108,7 @@ namespace DoctorConsult.API.Controllers
             string body = strBuild.ToString();
             string appSpecificPassword = "fajtjigwpcnxyyuv";
 
-            var mailMessage2 = new MailMessage(from, userObj.Email, subject, "Please check your email");
+            var mailMessage2 = new MailMessage(from, userObj.Email, subject, "Please check your account to see doctor reply");
             mailMessage2.IsBodyHtml = true;
             using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
             {
@@ -121,10 +121,10 @@ namespace DoctorConsult.API.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllTrackingsByRequestId/{reqId}")]
-        public IndexRequestTrackingVM GetAllTrackingsByRequestId(int reqId)
+        [Route("GetAllTrackingsByRequestId/{reqId}/{userId}")]
+        public IndexRequestTrackingVM GetAllTrackingsByRequestId(int reqId, string userId)
         {
-            return _requestTrackingService.GetAllTrackingsByRequestId(reqId);
+            return _requestTrackingService.GetAllTrackingsByRequestId(reqId,userId);
         }
 
      [HttpGet]

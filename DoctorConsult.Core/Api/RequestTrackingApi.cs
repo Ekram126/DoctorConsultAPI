@@ -2,6 +2,7 @@
 using DoctorConsult.Models;
 using DoctorConsult.ViewModels.RequestTrackingVM;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DoctorConsult.Core.Repositories
 {
@@ -28,7 +29,7 @@ namespace DoctorConsult.Core.Repositories
                     else
                     {
                         DateTime convertedDate = DateTime.Now;
-                        requestTracking.ResponseDate =  convertedDate.ToLocalTime();
+                        requestTracking.ResponseDate = convertedDate.ToLocalTime();
                     }
                     requestTracking.RequestId = int.Parse(createRequestTracking.RequestId.ToString());
                     requestTracking.StatusId = createRequestTracking.StatusId;
@@ -64,16 +65,28 @@ namespace DoctorConsult.Core.Repositories
             }
         }
 
-        public IndexRequestTrackingVM GetAllTrackingsByRequestId(int RequestId)
+        public IndexRequestTrackingVM GetAllTrackingsByRequestId(int RequestId, string userId)
         {
             IndexRequestTrackingVM mainClass = new IndexRequestTrackingVM();
+            ApplicationUser UserObj = new ApplicationUser();
+            ApplicationRole roleObj = new ApplicationRole();
+            List<string> lstRoleNames = new List<string>();
+
+            var roleNames = (from userRole in _context.UserRoles
+                             join role in _context.Roles on userRole.RoleId equals role.Id
+                             where userRole.UserId == userId
+                             select role);
+            foreach (var item in roleNames)
+            {
+                lstRoleNames.Add(item.Name);
+            }
+
 
 
             var trackings = _context.RequestTrackings.Include(a => a.Request).Include(a => a.Request.User).Include(a => a.RequestStatus)
                    .Where(r => r.RequestId == RequestId).OrderByDescending(t => t.ResponseDate).Select(track => new IndexRequestTrackingVM.GetData
                    {
                        Id = track.Id,
-
                        Advice = track.Advice,
                        ResponseDate = track.ResponseDate,
                        CreatedByName = track.Request.User != null ? track.User.UserName : "",
@@ -86,6 +99,14 @@ namespace DoctorConsult.Core.Repositories
                    }).ToList();
 
 
+                    if (lstRoleNames.Contains("Patient"))
+                    {
+                        trackings.RemoveAll(t => t.StatusId == 2);
+                        trackings.RemoveAll(t => t.StatusId == 4);
+                    }
+
+
+
             mainClass.Results = trackings;
             mainClass.Count = trackings.Count;
 
@@ -95,12 +116,12 @@ namespace DoctorConsult.Core.Repositories
         public EditRequestTrackingVM GetById(int id)
         {
             var RequestTrackingObj = _context.RequestTrackings.Include(a => a.Request)
-                .Where(a=>a.Id == id)
+                .Where(a => a.Id == id)
                 .Select(track => new EditRequestTrackingVM
                 {
                     Id = track.Id,
                     Advice = track.Advice,
-                    ResponseDate = track.ResponseDate != null ? track.ResponseDate:null,
+                    ResponseDate = track.ResponseDate != null ? track.ResponseDate : null,
                     //CreatedById = track.CreatedById,
                     //DoctorName = track.Doctor.Name,
                     //ManagerDoctorName = track.Doctor.NameAr,
@@ -119,8 +140,8 @@ namespace DoctorConsult.Core.Repositories
             {
                 RequestTracking requestTracking = _context.RequestTrackings.Find(editRequestTracking.Id);
                 requestTracking.Advice = editRequestTracking.Advice;
-                if (editRequestTracking.StrResponseDate != "")
-                    requestTracking.ResponseDate = DateTime.Parse(editRequestTracking.StrResponseDate.ToString());
+                //if (editRequestTracking.StrResponseDate != "")
+                //    requestTracking.ResponseDate = DateTime.Parse(editRequestTracking.StrResponseDate.ToString());
 
                 _context.Entry(requestTracking).State = EntityState.Modified;
                 _context.SaveChanges();

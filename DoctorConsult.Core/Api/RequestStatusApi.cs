@@ -2,7 +2,6 @@
 using DoctorConsult.Models;
 using DoctorConsult.ViewModels.RequestStatusVM;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace DoctorConsult.Core.Repositories
@@ -243,27 +242,19 @@ namespace DoctorConsult.Core.Repositories
 
             var lstStatus = _context.RequestStatus.ToList();
             mainClass.ListStatus = lstStatus;
-
-
-            //var query = _context.RequestTrackings.Include(a => a.Request).Include(a => a.RequestStatus).Include(a => a.User).ToList()
-            //                        .GroupBy(track => track.RequestId).ToList()
-            //                        .Select(g => g.OrderByDescending(track => track.ResponseDate));
-
-
             var query = _context.RequestTrackings.Include(a => a.Request)
                                 .Include(a => a.RequestStatus).Include(a => a.User)
                                 .GroupBy(track => track.RequestId).ToList()
                                 .Select(g => g.OrderByDescending(track => track.ResponseDate))
                                 .AsQueryable(); // Keep the query deferred
 
-
-            if (lstRoleNames.Contains("Doctor"))
-            {
-                query = query.Where(a => a.FirstOrDefault().AssignTo == userId).Where(a => !string.IsNullOrEmpty(a.FirstOrDefault().AssignTo));
-            }
             if (lstRoleNames.Contains("Patient"))
             {
                 query = query.Where(a => a.FirstOrDefault().Request.CreatedById == userId);
+            }
+            if (lstRoleNames.Contains("Doctor"))
+            {
+                query = query.Where(g => g.Any(track => track.Request.SpecialityId == specialityId && (track.AssignTo == userId || track.CreatedById == userId)));
             }
             if (lstRoleNames.Contains("SupervisorDoctor"))
             {

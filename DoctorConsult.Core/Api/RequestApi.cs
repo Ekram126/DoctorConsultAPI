@@ -40,6 +40,7 @@ namespace DoctorConsult.Core.Repositories
                                         .Include(a => a.Request)
                                         .Include(r => r.Request.Specialist)
                                         .Include(a => a.RequestStatus)
+                                        .Include(a => a.Request.User)
                                         .Include(a => a.User);
 
             return allRequestTrackings;
@@ -93,7 +94,7 @@ namespace DoctorConsult.Core.Repositories
             }
             if (lstRoleNames.Contains("Doctor"))
             {
-                query = query.Where(a => a.AssignTo == userObj.Id || a.CreatedById == userObj.Id);
+                query = query.Where(a => a.Request.SpecialityId == data.SearchObj.SpecialityId && GetAllRequests().Any(rt => rt.RequestId == a.RequestId && (rt.AssignTo == userObj.Id || rt.CreatedById == userObj.Id)));
             }
             if (lstRoleNames.Contains("SupervisorDoctor"))
             {
@@ -129,14 +130,11 @@ namespace DoctorConsult.Core.Repositories
             {
                 lstResults = lstResults.Where(x => x.StatusId == data.SearchObj.StatusId).ToList();
             }
+
+
+
+
             #endregion
-
-
-
-
-
-
-
 
             #region Loop to get Items after serach and sort
 
@@ -148,30 +146,30 @@ namespace DoctorConsult.Core.Repositories
                 getDataObj.Subject = req.Request.Subject;
                 getDataObj.RequestDate = req.Request.RequestDate;
 
-
-
-                getDataObj.StatusId = req.RequestStatus != null ? (int)req.RequestStatus.Id : 0;
-                getDataObj.StatusName = req.RequestStatus != null ? req.RequestStatus.Name : "";
-                getDataObj.StatusNameAr = req.RequestStatus != null ? req.RequestStatus.NameAr : "";
-                getDataObj.StatusColor = req.RequestStatus != null ? req.RequestStatus.Color : "";
-                getDataObj.StatusIcon = req.RequestStatus != null ? req.RequestStatus.Icon : "";
+                if (lstRoleNames.Contains("Patient"))
+                {
+                    if ((int)req.RequestStatus.Id == 1 || (int)req.RequestStatus.Id  == 5)
+                    {
+                        getDataObj.StatusId = req.RequestStatus != null ? (int)req.RequestStatus.Id : 0;
+                        getDataObj.StatusName = req.RequestStatus != null ? req.RequestStatus.Name : "";
+                        getDataObj.StatusNameAr = req.RequestStatus != null ? req.RequestStatus.NameAr : "";
+                        getDataObj.StatusColor = req.RequestStatus != null ? req.RequestStatus.Color : "";
+                        getDataObj.StatusIcon = req.RequestStatus != null ? req.RequestStatus.Icon : "";
+                    }
+                }
+                else
+                {
+                    getDataObj.StatusId = req.RequestStatus != null ? (int)req.RequestStatus.Id : 0;
+                    getDataObj.StatusName = req.RequestStatus != null ? req.RequestStatus.Name : "";
+                    getDataObj.StatusNameAr = req.RequestStatus != null ? req.RequestStatus.NameAr : "";
+                    getDataObj.StatusColor = req.RequestStatus != null ? req.RequestStatus.Color : "";
+                    getDataObj.StatusIcon = req.RequestStatus != null ? req.RequestStatus.Icon : "";
+                }
                 getDataObj.ActionDate = req.ResponseDate;
-
-                //var lstTracks = _context.RequestTrackings.Include(a => a.RequestStatus).Where(a => a.RequestId == req.Request.Id).OrderByDescending(a => a.ResponseDate).ToList();
-                //if (lstTracks.Count > 0)
-                //{
-                //    var trackObj = lstTracks[0];
-                //    getDataObj.StatusId = trackObj.RequestStatus != null ? (int)trackObj.RequestStatus.Id : 0;
-                //    getDataObj.StatusName = trackObj.RequestStatus != null ? trackObj.RequestStatus.Name : "";
-                //    getDataObj.StatusNameAr = trackObj.RequestStatus != null ? trackObj.RequestStatus.NameAr : "";
-                //    getDataObj.StatusColor = trackObj.RequestStatus != null ? trackObj.RequestStatus.Color : "";
-                //    getDataObj.StatusIcon = trackObj.RequestStatus != null ? trackObj.RequestStatus.Icon : "";
-
-
-                //    getDataObj.ActionDate = trackObj.ResponseDate;
-                //}
                 getDataObj.Advice = req.Advice;
+
                 getDataObj.CreatedBy = req.Request.User != null ? req.Request.User.UserName : "";
+
                 getDataObj.Complain = req.Request.Complain;
                 getDataObj.SpecialityName = req.Request.Specialist != null ? req.Request.Specialist.Name : "";
                 getDataObj.SpecialityNameAr = req.Request.Specialist != null ? req.Request.Specialist.NameAr : "";

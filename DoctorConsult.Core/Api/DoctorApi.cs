@@ -54,6 +54,7 @@ namespace DoctorConsult.Core.Repositories
                     DoctorObj.GenderId = model.GenderId;
                     DoctorObj.SpecialistId = model.SpecialistId;
                     DoctorObj.ParentId = model.ParentId;
+                    DoctorObj.Remarks = model.Remarks;
                     DoctorObj.IsActive = model.IsActive;
                     _context.Doctors.Add(DoctorObj);
                     _context.SaveChanges();
@@ -81,7 +82,7 @@ namespace DoctorConsult.Core.Repositories
             if (doctorUserRoleObj.RoleName == "Doctor")
             {
 
-                var lstDoctors = _context.Doctors.Where(a => a.SpecialistId == doctorUserRoleObj.SpecialityId).ToList();
+                var lstDoctors = _context.Doctors.Where(a => a.SpecialistId == doctorUserRoleObj.SpecialityId && a.IsActive == true).ToList();
                 if (lstDoctors.Count > 0)
                 {
                     var role = await _roleManager.FindByNameAsync("SupervisorDoctor");
@@ -397,7 +398,14 @@ namespace DoctorConsult.Core.Repositories
                             getDataObj.DoctorRole = "Doctor : ";
                         }
                     }
-
+                    if(item.IsActive == true)
+                    {
+                        getDataObj.DoctorStatus = "Active";
+                    }
+                    else
+                    {
+                        getDataObj.DoctorStatus = "Not Active";
+                    }
                     list.Add(getDataObj);
                 }
             }
@@ -548,7 +556,7 @@ namespace DoctorConsult.Core.Repositories
             GeneratedDoctorCodeVM doctorObj = new GeneratedDoctorCodeVM();
             string doctorCode = "DT";
 
-            var lstIds = _context.Requests.ToList();
+            var lstIds = _context.Doctors.ToList();
             if (lstIds.Count > 0)
             {
                 var code = lstIds.LastOrDefault().Id;

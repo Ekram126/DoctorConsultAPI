@@ -49,6 +49,8 @@ namespace DoctorConsult.ViewModels.DoctorVM
 
             public string? DoctorRole { get; set; }
 
+            public string? DoctorStatus { get; set; }
+
         }
     }
 }
