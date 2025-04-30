@@ -11,6 +11,9 @@ namespace  DoctorConsult.ViewModels.RequestTrackingVM
 
         public List<GetData>? Results { get; set; }
         public int? Count { get; set; }
+   public string? AdviceResponse { get; set; }
+
+ public int Id { get; set; }
 
         public class GetData
         {

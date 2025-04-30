@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace DoctorConsult.Domain.Interfaces
 {
-    //public interface ITokenService
-    //{
-    //    Task<string> CreateToken(ApplicationUser user, UserManager<ApplicationUser> userManager);
-    //}
+    public interface ITokenService
+    {
+        Task<string> CreateToken(ApplicationUser user, UserManager<ApplicationUser> userManager);
+    }
 }

@@ -34,7 +34,7 @@ namespace DoctorConsult.API.Controllers
         [HttpPost]
         [Route("ListDoctors/{pageNumber}/{pageSize}")]
         public async Task<IndexDoctorVM> GetAll(SortAndFilterDoctorVM data, int pageNumber, int pageSize)
-        {
+       {
             return await _doctorRepository.GetAll(data, pageNumber, pageSize);
         }
 

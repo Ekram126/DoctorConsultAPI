@@ -84,7 +84,7 @@ namespace DoctorConsult.Core.Repositories
 
 
             var trackings = _context.RequestTrackings.Include(a => a.Request).Include(a => a.Request.User).Include(a => a.RequestStatus)
-                   .Where(r => r.RequestId == RequestId).OrderByDescending(t => t.ResponseDate).Select(track => new IndexRequestTrackingVM.GetData
+                   .Where(r => r.RequestId == RequestId).Select(track => new IndexRequestTrackingVM.GetData
                    {
                        Id = track.Id,
                        Advice = track.Advice,
@@ -97,17 +97,23 @@ namespace DoctorConsult.Core.Repositories
                        StatusColor = track.RequestStatus != null ? track.RequestStatus.Color : "",
                        StatusIcon = track.RequestStatus != null ? track.RequestStatus.Icon : "",
                    }).ToList();
-
-
-                    if (lstRoleNames.Contains("Patient"))
-                    {
-                        trackings.RemoveAll(t => t.StatusId == 2);
-                        trackings.RemoveAll(t => t.StatusId == 4);
-                    }
+            if (lstRoleNames.Contains("Patient"))
+            {
+                trackings.RemoveAll(t => t.StatusId == 2 && t.StatusId == 4);
+            }
 
 
 
-            mainClass.Results = trackings;
+            var adviceResponse = trackings.Where(t => t.StatusId == 3 && !string.IsNullOrEmpty(t.Advice)).Select(t => t.Advice).ToList();
+            var adviceResponseId = trackings.Where(t => t.StatusId == 3 && !string.IsNullOrEmpty(t.Advice)).Select(t => t.Id).ToList();
+            if (adviceResponse.Count > 0)
+                mainClass.AdviceResponse = adviceResponse[0];
+
+
+            if (adviceResponseId.Count > 0)
+                mainClass.Id = adviceResponseId[0];
+
+            mainClass.Results = trackings.OrderByDescending(t => t.ResponseDate).ToList();
             mainClass.Count = trackings.Count;
 
             return mainClass;

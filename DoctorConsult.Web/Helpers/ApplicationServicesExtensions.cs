@@ -4,6 +4,7 @@
 using ArticleConsult.Core.Repositories;
 using BannerConsult.Core.Repositories;
 using BannerConsult.Domain.Interfaces;
+using DoctorConsult.Core.Api;
 using DoctorConsult.Core.Repositories;
 using DoctorConsult.Domain.Interfaces;
 using DoctorConsult.Models;
@@ -32,7 +33,8 @@ namespace DoctorConsult.Web.Helpers
             services.AddScoped<ICountryRepository, CountryApi>();
             services.AddScoped<IPersonalDataRepository, PersonalDataApi>();
             services.AddScoped<ISectionRepository, SectionApi>();
-           // services.AddScoped<IPasswordValidator<ApplicationUser>, PasswordValidatorService>();
+           // services.AddScoped<ITokenService, TokenApi>();
+            // services.AddScoped<IPasswordValidator<ApplicationUser>, PasswordValidatorService>();
             return services;
         }
     }

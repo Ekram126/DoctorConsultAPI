@@ -1,6 +1,7 @@
 ﻿using DoctorConsult.Domain.Interfaces;
 using DoctorConsult.Models;
 using DoctorConsult.ViewModels.RequestTrackingVM;
+using DoctorConsult.ViewModels.UserVM;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -22,11 +23,17 @@ namespace DoctorConsult.API.Controllers
         private IRequestTrackingRepository _requestTrackingService;
         private IRequestRepository _requestService;
         UserManager<ApplicationUser> _userManager;
-        public RequestTrackingController(IRequestTrackingRepository requestTrackingService, IRequestRepository requestService, UserManager<ApplicationUser> userManager)
+        IHttpContextAccessor _httpContextAccessor;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        public RequestTrackingController(IRequestTrackingRepository requestTrackingService, IRequestRepository requestService, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, RoleManager<ApplicationRole> roleManager)
         {
             _requestTrackingService = requestTrackingService;
             _requestService = requestService;
             _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
+            // _roleManager = roleManager;
+
+            _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         }
 
         [HttpPost]
@@ -51,61 +58,12 @@ namespace DoctorConsult.API.Controllers
         [Route("SendMailToPatient")]
         public async void SendMailToPatient(CreateRequestTrackingVM createRequestTracking)
         {
-
-
-
             var requestObj = _requestService.GetById(int.Parse(createRequestTracking.RequestId.ToString()));
 
-           var userObj = await  _userManager.FindByIdAsync(requestObj.UserId);
-     
-
-            StringBuilder strBuild = new StringBuilder();
-            //strBuild.Append($"Dear {usr.UserName}\r\n");
-            //strBuild.Append("<table>");
-            //strBuild.Append("<tr>");
-            //strBuild.Append("<td> Asset Name");
-            //strBuild.Append("</td>");
-            //strBuild.Append("<td>" + masterObj.NameAr);
-            //strBuild.Append("</td>");
-            //strBuild.Append("</tr>");
-            //strBuild.Append("<tr>");
-            //strBuild.Append("<td> Serial");
-            //strBuild.Append("</td>");
-            //strBuild.Append("<td>" + assetObj.SerialNumber);
-            //strBuild.Append("</td>");
-            //strBuild.Append("</tr>");
-            //strBuild.Append("<tr>");
-            //strBuild.Append("<td> BarCode");
-            //strBuild.Append("</td>");
-            //strBuild.Append("<td>" + assetObj.Barcode);
-            //strBuild.Append("</td>");
-            //strBuild.Append("</tr>");
-            //if (applicationObj.AppTypeId == 1)
-            //{
-            //    strBuild.Append("<tr>");
-            //    strBuild.Append("<td> Reasons");
-            //    strBuild.Append("</td>");
-            //    strBuild.Append("<td>" + strExcludes);
-            //    strBuild.Append("</td>");
-            //    strBuild.Append("</tr>");
-            //}
-            //if (applicationObj.AppTypeId == 2)
-            //{
-            //    strBuild.Append("<tr>");
-            //    strBuild.Append("<td> Reasons");
-            //    strBuild.Append("</td>");
-            //    strBuild.Append("<td>" + strHolds);
-            //    strBuild.Append("</td>");
-            //    strBuild.Append("</tr>");
-            //}
-            //strBuild.Append("</table>");
-
-
-
+            var userObj = await _userManager.FindByIdAsync(requestObj.UserId);
 
             string from = "almostakbaltechnology.dev@gmail.com";
             string subject = "Reply to Patient";
-            string body = strBuild.ToString();
             string appSpecificPassword = "fajtjigwpcnxyyuv";
 
             var mailMessage2 = new MailMessage(from, userObj.Email, subject, "Please check your account to see doctor reply");
@@ -116,18 +74,100 @@ namespace DoctorConsult.API.Controllers
                 smtpClient.Credentials = new NetworkCredential(from, appSpecificPassword);
                 smtpClient.Send(mailMessage2);
             }
-
-
         }
+
+
+
+
+        [HttpPost]
+        [Route("SendMailToAdminAfterPatientRequest")]
+        public async Task<ActionResult> SendMailToAdminAfterPatientRequest()
+        {
+            //var requestObj = _requestService.GetById(int.Parse(createRequestTracking.RequestId.ToString()));
+            //var userObj = await _userManager.FindByIdAsync(requestObj.UserId);
+
+            try
+            {
+                var role = await _roleManager.FindByNameAsync("Admin");
+                var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
+
+                string from = "almostakbaltechnology.dev@gmail.com";
+                string subject = "New Request Added";
+                string appSpecificPassword = "fajtjigwpcnxyyuv";
+                var domainName = "http://" + _httpContextAccessor.HttpContext?.Request.Host.Value;
+                string body = "Hello, Admin: \n\n There is new request added, please click on this link to login to see the request  <a href= '" + domainName + "/#/adminlog'> login </a> ";
+
+                var mailMessage2 = new MailMessage(from, usersInRole[0].Email, subject, body);
+                mailMessage2.IsBodyHtml = true;
+                using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtpClient.EnableSsl = true;
+                    smtpClient.Credentials = new NetworkCredential(from, appSpecificPassword);
+                    smtpClient.Send(mailMessage2);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or output the error
+                Console.WriteLine($"Error sending email: {ex.Message}");
+            }
+
+
+            return Ok();
+        }
+
+
+
+        [HttpPost]
+        [Route("SendMailToAssignedSupervisorOrDoctor")]
+        public async Task<ActionResult> SendMailToAssignedSupervisor(CreateRequestTrackingVM createRequestTracking)
+        {
+            try
+            {
+             
+                var userObj = await _userManager.FindByIdAsync(createRequestTracking.AssignTo); ;
+
+                StringBuilder builder = new StringBuilder();
+                builder.AppendLine("Hello, " + userObj.UserName +"<br/>");
+                builder.AppendLine("Please check new requests." + "<br/>");
+                var domainName = "http://" + _httpContextAccessor.HttpContext?.Request.Host.Value;
+                builder.AppendLine("Please click on this link to login to see the request  <a href= '" + domainName + "/#/adminlog'> login </a> ");
+
+
+                string from = "almostakbaltechnology.dev@gmail.com";
+                string subject = "New Request Added";
+                string appSpecificPassword = "fajtjigwpcnxyyuv";
+                 string body = builder.ToString();
+                
+               var mailMessage2 = new MailMessage(from, userObj.Email, subject, body);
+                mailMessage2.IsBodyHtml = true;
+                using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtpClient.EnableSsl = true;
+                    smtpClient.Credentials = new NetworkCredential(from, appSpecificPassword);
+                    smtpClient.Send(mailMessage2);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or output the error
+                Console.WriteLine($"Error sending email: {ex.Message}");
+            }
+
+
+            return Ok();
+        }
+
+
 
         [HttpGet]
         [Route("GetAllTrackingsByRequestId/{reqId}/{userId}")]
         public IndexRequestTrackingVM GetAllTrackingsByRequestId(int reqId, string userId)
         {
-            return _requestTrackingService.GetAllTrackingsByRequestId(reqId,userId);
+            return _requestTrackingService.GetAllTrackingsByRequestId(reqId, userId);
         }
 
-     [HttpGet]
+        [HttpGet]
         [Route("GetRequestTrackingById/{trackId}")]
         public EditRequestTrackingVM GetRequestTrackingById(int trackId)
         {

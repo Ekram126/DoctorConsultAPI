@@ -224,18 +224,18 @@ namespace DoctorConsult.Core.Repositories
                     lstDoctors = lstDoctors;
                 }
             }
-
+            if (doctorEmail.Count() == 0)
+            {
+                if (lstRoleNames.Contains("Admin"))
+                {
+                    lstDoctors = lstDoctors;
+                }
+            }
 
             #endregion
 
 
 
-            //#region Search Criteria
-            //if (data.SearchObj?.SpecialistId != 0)
-            //{
-            //    lstDoctors = lstDoctors.Where(x => x.SpecialistId == data.SearchObj?.SpecialistId).ToList();
-            //}
-            //#endregion
             #region Sort Criteria
 
             switch (data.SortObj?.SortBy)
@@ -385,7 +385,7 @@ namespace DoctorConsult.Core.Repositories
 
                     if (item.ParentId == 0)
                     {
-                        getDataObj.SupervisorDoctor =  item.Name;
+                        getDataObj.SupervisorDoctor = item.Name;
                         getDataObj.DoctorRole = "SupervisorDoctor : ";
                     }
                     else
@@ -394,11 +394,11 @@ namespace DoctorConsult.Core.Repositories
                         if (child.Count > 0)
                         {
                             var s = _context.Doctors.Find(child[0].ParentId);
-                            getDataObj.SupervisorDoctor =  s.Name;
+                            getDataObj.SupervisorDoctor = s.Name;
                             getDataObj.DoctorRole = "Doctor : ";
                         }
                     }
-                    if(item.IsActive == true)
+                    if (item.IsActive == true)
                     {
                         getDataObj.DoctorStatus = "Active";
                     }
@@ -438,7 +438,7 @@ namespace DoctorConsult.Core.Repositories
                 item.GradDate = doctors[0].GradDate?.Date;
                 item.StrGradDate = doctors[0].GradDate.HasValue ? doctors[0].GradDate.Value.Date.ToShortDateString() : "";
                 item.JoinDate = doctors[0].JoinDate?.Date;
-                item.StrJoinDate = doctors[0].JoinDate.HasValue ? doctors[0].JoinDate.Value.Date.ToShortDateString():"";
+                item.StrJoinDate = doctors[0].JoinDate.HasValue ? doctors[0].JoinDate.Value.Date.ToShortDateString() : "";
                 item.Remarks = doctors[0].Remarks;
                 item.GenderId = doctors[0].GenderId;
                 item.SpecialistId = doctors[0].SpecialistId;
@@ -570,6 +570,6 @@ namespace DoctorConsult.Core.Repositories
             return doctorObj;
         }
 
-     
+
     }
 }

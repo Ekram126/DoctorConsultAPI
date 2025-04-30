@@ -1,4 +1,5 @@
-﻿using DoctorConsult.Domain.Interfaces;
+﻿using DoctorConsult.Core.Api;
+using DoctorConsult.Domain.Interfaces;
 using DoctorConsult.Models;
 using DoctorConsult.ViewModels.UserVM;
 using DoctorConsult.Web.Helpers;
@@ -6,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -21,10 +24,9 @@ namespace DoctorConsult.API.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         RoleManager<ApplicationRole> _roleManager;
-        // PasswordValidatorService _passwordValidatorService;
         private readonly IPasswordValidator<ApplicationUser> _passwordValidatorService;
 
-
+      //  TokenApi _tokenApi;
 
         private readonly IConfiguration _configuration;
 
@@ -38,6 +40,7 @@ namespace DoctorConsult.API.Controllers
             _configuration = configuration;
             _context = context;
             _passwordValidatorService = passwordValidatorService;
+          //  _tokenApi = tokenApi;
 
 
         }
@@ -125,6 +128,7 @@ namespace DoctorConsult.API.Controllers
                     expiration = token.ValidTo,
                     specialityId = specialityId,
                     roleNames = roleNames,
+                   // userToken = await _tokenApi.CreateToken(user, _userManager),
                     Message = "success"
                 });
             }
@@ -166,6 +170,46 @@ namespace DoctorConsult.API.Controllers
             }
         }
 
+
+
+
+        [HttpGet]
+        [Route("GetUserById/{userId}")]
+        public async Task<IActionResult> GetUserById(string userId)
+        {
+            // Find the user by ID
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+
+            var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                };
+
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                );
+
+            return Ok(new
+            {
+                id = user.Id,
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                email = user.Email,
+                userName = user.UserName,
+                Message = "success"
+            });
+        }
 
 
         [HttpPost]
@@ -213,9 +257,9 @@ namespace DoctorConsult.API.Controllers
                         //    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "role", Message ="Please select doctor role", MessageAr = "اختر دور الدكتور" });
                         //else
                         //{
-                            string? roleName = _roleManager?.Roles?.Where(a => a.Name == role).FirstOrDefault().Name;
-                            await _userManager.AddToRoleAsync(user, roleName);
-                       // }
+                        string? roleName = _roleManager?.Roles?.Where(a => a.Name == role).FirstOrDefault().Name;
+                        await _userManager.AddToRoleAsync(user, roleName);
+                        // }
                     }
                 }
             }
@@ -344,6 +388,8 @@ namespace DoctorConsult.API.Controllers
         }
 
 
+
+
         //[HttpPost("ForgotPassword")]
         //public async Task<IActionResult> ForgotPassword([FromBody] ForgetPasswordVM forgotPasswordModel)
         //{
@@ -360,15 +406,12 @@ namespace DoctorConsult.API.Controllers
         //     {
         //         {"email", forgotPasswordModel.Email },
         //         {"token", token }
-
         //     };
 
         //    var callback = QueryHelpers.AddQueryString(forgotPasswordModel.ClientURI, param);
         //    var hash = callback.Split("#");
         //    var query = hash[0];
         //    replace = query.Replace("/?", "/#/reset?");
-
-
         //    // replace = query.Replace("ResetPassword?", "#/ResetPassword?");
 
 
@@ -378,14 +421,10 @@ namespace DoctorConsult.API.Controllers
         //    strBuild.Append("من فضلك اضغط على الرابط التالي لتغيير كلمة المرور");
         //    strBuild.Append("<br />");
         //    strBuild.Append("<a href='" + replace + "'>اضغط هنا</a>");
-
-
         //    string from = "almostakbaltechnology.dev@gmail.com";
         //    string subject = "Al-Mostakbal Technology";
         //    string body = strBuild.ToString();
         //    string appSpecificPassword = "fajtjigwpcnxyyuv";
-
-
         //    var mailMessage = new MailMessage(from, user.Email, subject, body);
         //    mailMessage.IsBodyHtml = true;
         //    using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
@@ -394,14 +433,40 @@ namespace DoctorConsult.API.Controllers
         //        smtpClient.Credentials = new NetworkCredential(from, appSpecificPassword);
         //        smtpClient.Send(mailMessage);
         //    }
-
-
-
-
-
         //    return Ok();
         //}
-        //[HttpPost("ResetPassword")]
+
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordVM resetPasswordDto)
+        {
+            List<string> lstErrors = new List<string>();
+            string errormessage = "";
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var user = await _userManager.FindByNameAsync(resetPasswordDto.UserName);
+            if (user == null)
+                return BadRequest("Invalid Request");
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetPassResult = await _userManager.ResetPasswordAsync(user, code, resetPasswordDto.Password);
+            if (!resetPassResult.Succeeded)
+            {
+                var errors = resetPassResult.Errors.Select(e => e.Description);
+                foreach (var error in errors)
+                {
+                    lstErrors.Add(error);
+                }
+                errormessage = string.Join("<br />", lstErrors);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "art", Message = errormessage, MessageAr = errormessage });
+
+
+            //    return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = errormessage, MessageAr = errormessage });
+            }
+            return Ok(lstErrors);
+        }
         //public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordVM resetPasswordDto)
         //{
         //    List<string> lstErrors = new List<string>();
@@ -418,16 +483,13 @@ namespace DoctorConsult.API.Controllers
         //    if (!resetPassResult.Succeeded)
         //    {
         //        var errors = resetPassResult.Errors.Select(e => e.Description);
-
         //        foreach (var error in errors)
         //        {
         //            lstErrors.Add(error);
-
         //        }
         //        errormessage = string.Join("<br />", lstErrors);
         //        return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = errormessage, MessageAr = errormessage });
         //    }
-
         //    return Ok(lstErrors);
         //}
 

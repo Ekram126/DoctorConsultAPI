@@ -104,13 +104,14 @@ namespace DoctorConsult.Core.Repositories
             {
                 query = query;
             }
-
-
-
             query = query.GroupBy(a => a.RequestId).Select(g => g.OrderByDescending(a => a.ResponseDate).FirstOrDefault()).AsQueryable();   // Order each group by ResponseDate and take the latest
 
 
             #endregion
+
+
+          
+
 
             var countItems = query.ToList();
             mainClass.Count = countItems.Count();
@@ -130,11 +131,38 @@ namespace DoctorConsult.Core.Repositories
             {
                 lstResults = lstResults.Where(x => x.StatusId == data.SearchObj.StatusId).ToList();
             }
+            #endregion
 
+            #region Sort Criteria
 
+            switch (data.SortObj.SortBy)
+            {
+                case "RequestDate":
+                case "التاريخ":
+                    if (data.SortObj.SortStatus == "ascending")
+                    {
+                        lstResults = lstResults.OrderBy(x => x.Request.RequestDate).ToList();
+                    }
+                    else
+                    {
+                        lstResults = lstResults.OrderByDescending(x => x.Request.RequestDate).ToList();
+                    }
+                    break;
+                case "ActionDate":
+                    if (data.SortObj.SortStatus == "ascending")
+                    {
+                        lstResults = lstResults.OrderBy(x => x.ResponseDate).ToList();
+                    }
+                    else
+                    {
+                        lstResults = lstResults.OrderByDescending(x => x.ResponseDate).ToList();
+                    }
+                    break;
 
+            }
 
             #endregion
+
 
             #region Loop to get Items after serach and sort
 
@@ -145,6 +173,8 @@ namespace DoctorConsult.Core.Repositories
                 getDataObj.RequestCode = req.Request != null ? req.Request.RequestCode : "";
                 getDataObj.Subject = req.Request.Subject;
                 getDataObj.RequestDate = req.Request.RequestDate;
+
+
 
                 if (lstRoleNames.Contains("Patient"))
                 {
@@ -165,9 +195,38 @@ namespace DoctorConsult.Core.Repositories
                     getDataObj.StatusColor = req.RequestStatus != null ? req.RequestStatus.Color : "";
                     getDataObj.StatusIcon = req.RequestStatus != null ? req.RequestStatus.Icon : "";
                 }
+
+
+
+
+
+                if (lstRoleNames.Contains("Admin"))
+                {
+                    // Check for conditions where CreatedById matches the user ID
+                    var result = GetAllRequests().Where(a => a.StatusId == 3 && a.CreatedById == userObj.Id && a.RequestId == req.RequestId).ToList();
+                    if (result.Count > 0)
+                    {
+                        getDataObj.IsAdminApprove = false;
+                    }
+                    else
+                    {
+                        // Check for conditions where CreatedById does not match the user ID
+                        var result2 = GetAllRequests().Where(a => a.StatusId == 3 && a.CreatedById != userObj.Id && a.RequestId == req.RequestId).ToList();
+                        if (result2.Count > 0)
+                        {
+                            getDataObj.IsAdminApprove = true;
+                        }
+                        else
+                        {
+                            getDataObj.IsAdminApprove = false; // Default case
+                        }
+                    }
+                }
+
+
+
                 getDataObj.ActionDate = req.ResponseDate;
                 getDataObj.Advice = req.Advice;
-
                 getDataObj.CreatedBy = req.Request.User != null ? req.Request.User.UserName : "";
 
                 getDataObj.Complain = req.Request.Complain;

@@ -9,9 +9,9 @@ namespace  DoctorConsult.ViewModels.RequestVM
     {
         public List<GetData>? Results { get; set; }
 
-        public int Count { get; set; }  
-        
+        public int Count { get; set; }
 
+        public bool? IsAdminApprove { get; set; }
         public class GetData
         {
             public int Id { get; set; }
@@ -35,6 +35,8 @@ namespace  DoctorConsult.ViewModels.RequestVM
             public string? SpecialityName { get; set; }
             public string? SpecialityNameAr { get; set; }
 
+
+            public bool? IsAdminApprove { get; set; }
         }
     }
 }

@@ -4,11 +4,13 @@ using DoctorConsult.Domain.Interfaces;
 using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DoctorConsult.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class RequestController : ControllerBase
     {
         private readonly IRequestRepository _requestService;
@@ -32,7 +34,7 @@ namespace DoctorConsult.API.Controllers
         }
 
 
-           [HttpGet]
+        [HttpGet]
         [Route("GenerateRequestNumber")]
         public GeneratedRequestNumberVM GenerateRequestNumber()
         {
@@ -62,14 +64,14 @@ namespace DoctorConsult.API.Controllers
         public IActionResult UpdateRequest(EditRequestVM editRequestVM)
         {
             var requestId = _requestService.Update(editRequestVM);
-            return  Ok( requestId);
+            return Ok(requestId);
         }
 
 
         [HttpGet("GetUnreadNotificationsCount/{userId}/{specialityId}")]
         public async Task<IndexRequestVM> GetUnreadNotificationsCount(string userId, int specialityId)
         {
-            var unreadCount = await _requestService.GetUnreadNotificationsCount(userId,specialityId);
+            var unreadCount = await _requestService.GetUnreadNotificationsCount(userId, specialityId);
             return unreadCount;
         }
 
