@@ -6,5 +6,10 @@ namespace DoctorConsult.Domain.Interfaces
     public interface IPersonalDataRepository
     {
         PersonalData GetPersonalData();
+
+
+        int SavePersonalData(PersonalData model);
+
+        int UpdatePersonalData(PersonalData model);
     }
 }

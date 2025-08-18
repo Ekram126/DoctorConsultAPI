@@ -30,5 +30,13 @@ namespace DoctorConsult.Web.Controllers
         {
             return _personalDataRepository.GetPersonalData();
         }
+
+
+        [HttpPut]
+        [Route("UpdatePersonalData")]
+        public int GetPersonalData(PersonalData model)
+        {
+            return _personalDataRepository.UpdatePersonalData(model);
+        }
     }
 }
